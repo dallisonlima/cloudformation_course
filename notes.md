@@ -145,5 +145,8 @@ Resources:
    | AWS::Partition | Standard AWS region -> aws / Other regions -> aws-partitionname (ex.: China region -> aws-cn) |  
    | AWS::URLSuffix | amazonaws.com (ex. China region -> amazonaws.com.cn) |  
 
-
-   
+#### What are outputs?
+- The Outputs section declares optional outputs values that we can import into others stacks (if you export them first) !
+- You can also view the outputs in the AWS Console or in using the AWS CLI
+- They're very useful for example if you define a network CloudFormation, and output the variables such as VPC ID and your Subnet IDs.
+- It's the best way to peform some collaboration cross stack, as you let expert handle their own part of the stack.
