@@ -13,9 +13,10 @@
 - Almost. Only a select few niches are not there yet
 - You can work around that using CloudFormation Custom Resources
 
-### Notes
+## Notes
 
-#### 1 - Policys
+### 1 - Policys
+
 #### Deletion Policy
 -> Control what happens when the CloudFormation template is deleted or when a resource is removed directly from a CloudFormation template
 -> Use with any resource
@@ -43,7 +44,7 @@
   - RDS DBInstance, RDS DBCluster, Redshift Cluster, Neptune DBCluster
   - The snapshot doesn't exist in CloudFormation's scope
 
-#### 2- Mappings
+### 2 - Mappings
 -> Mappings are fixed variables within your CloudFormation template
 -> They're very handy to differentiate between diferent environments (dev vs prod), regions (AWS regions), AMI types, etc.
 - Example:
@@ -145,8 +146,66 @@ Resources:
    | AWS::Partition | Standard AWS region -> aws / Other regions -> aws-partitionname (ex.: China region -> aws-cn) |  
    | AWS::URLSuffix | amazonaws.com (ex. China region -> amazonaws.com.cn) |  
 
-#### What are outputs?
+### 3 - Outputs
+-> As a name indicates, outputs are optional outputs values that we can import into other stacks. So we first need to export the outputs from a CloudFormation stack and another one can reference them.
+
 - The Outputs section declares optional outputs values that we can import into others stacks (if you export them first) !
 - You can also view the outputs in the AWS Console or in using the AWS CLI
 - They're very useful for example if you define a network CloudFormation, and output the variables such as VPC ID and your Subnet IDs.
 - It's the best way to peform some collaboration cross stack, as you let expert handle their own part of the stack.
+
+### 4 - Conditions
+Consitions are used to allow, conditionally, the creation of resources or outputs when based on a condition.
+
+- Conditions are used to control the creation of resources or outputs based on a condition.
+- Conditions can be whatever you want them to be, but common ones are:
+  - Environments (dev / test / prod)
+  - AWS Region
+  - Any parameter value
+- Each condition can reference another condition, parameter value or mapping
+
+#### How to define condition
+
+```yaml
+  Conditions:
+    CreateProdResources: !Equals [ !Ref Envtype, prod ]
+```
+- The logical ID is for you to choose. It's how you name condition.
+- The intrinsic function (logical) can be any of the following:
+  - Fn::And
+  - Fn::Equals
+  - Fn::If
+  - Fn::Not
+  - Fn::Or
+
+#### Using a Condition
+- Conditions can be applied to resources / outputs / etc..
+
+```yaml
+  Resources:
+    MoutPoint: 
+      Type: AWS::EC2::VolumeAttachment
+      Condition: CreateProdResouurces
+```
+#### Fn::GetAtt
+- Attributes are attached to any resources you create
+- To know the attributes of your resources, the best place to look at is the documentation
+- For example: the AZ of an EC2 machine!
+
+```yaml
+  Resources:
+    EC2Instance: 
+      Type: AWS::EC2::Instance
+      Properties:
+        ImageId: ami-0742b4e673072066f
+        InstanceType: t2.micro
+```
+```yaml
+  NewVolume:
+    Type: AWS::EC2::Volume
+    Condition: CreateProdResources
+    Properties:
+      Size: 100
+      AvailabilityZone: !GetAtt EC2Instance.AvailabilityZone
+```
+
