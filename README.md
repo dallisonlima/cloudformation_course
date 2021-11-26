@@ -298,3 +298,96 @@ Rules-specific Intrinsic Functions
   - etc.
 - Usually, you want the instances to be self configured so that they can perform the job they're supposed to peform
 - You can fully automate your EC2 fleet state with CloudFormation Init
+
+#### User Data in EC2 for CloudFormation
+- See the 1-ec2-user-data.yaml archive at section 10.
+> The importante thing to pass is the entire script through the function Fn::Base64
+
+#### Enter CloudFormation Helper Scripts
+- We have 4 Python scripts, that come directly on AmazonLinux 2 AMI, or can be installed using yum on non-Amazon Linux AMIs
+  - cfn-init: Used to retrieve and interpret the resources metadata, installing packages, creating files and starting services
+  - sfn-signal: A simple wrapper to signal with a CreationPolicy or WaitCondition, enabling you to synchronize other resources in the stack with the application being ready
+  - cfn-get-metadata: A wrapper script making it easy to retrieve either all metadata defined for a resource or path to a specific key or sbtree of the resource metadata
+  - cfn-hup: A daemon to check for updates to the metadata and execute custom hooks when the changes are detected
+- Usual flow: cfn-init, then cfn-signal, then optionally cfn-hup.
+
+#### AWS::CloudFormation::Init
+
+```yaml
+  Resources:
+    MyInstances:
+      Type: AWS::EC2::Instance
+      Metadata: 
+        AWS::CloudFormation::Init:
+          config:
+            packages:
+              :
+            groups:
+              :
+            users:
+              :
+            sources:
+              :
+            files:
+              :
+            commands:
+              :
+            services:
+              :
+      Properties:
+        :
+```
+
+- A config contains the following and is executed in thar order
+  - <font color= "blue" >Packages:</font> used to download and install pre-packeaged apps and components on Linux/Windows (ex.: MySQL, PHP, etc)
+  - <font color= "blue" >Groups:</font> define user groups
+  - <font color= "blue" >Users:</font> define users, and which group they belong to
+  - <font color= "blue" >Sources:</font> download files and archives and place them on the EC2 instance
+  - <font color= "blue" >Files:</font> create files on the EC2 instance, usind inline or can be pulled from a URL
+  - <font color= "blue" >Commands:</font> run a series of commands
+  - <font color= "blue" >Service:</font> launch a list of sysvinit
+
+#### _-> Packages_
+- You can install packages from the following repositories: apt, msi, python, rpm, rubygems and yum.
+- Packages are processed in the following order: rpm, yum/apt, and then rubygems and python.
+- You can specify a version, or no version (empty array - means latest)
+```yaml
+  rpm:
+    epel: "http://download.fedoraproject.org/pub/epel1/5/i386/epel-release/5/4.noarch.rpm"
+  yum:
+    httpd: []
+    php:
+    wordpress: []
+  rubygems:
+    chef:
+      - "0.10.2"
+```
+- Take a look 2-cfn-init.yaml in section 10.
+
+#### _-> Groups and Users_
+- If you want to have multiple users and groups (with an opitional gid) in your EC2 instance, you can do the following
+```yaml
+  groups:
+    groupeOne: {}
+    groupTwo:
+      gid: "45"
+  users:
+    myUser:
+      groups:
+        - "groupOne"
+        - "groupTwo"
+      uid: "50"
+      homeDir: "/tmp"
+```
+- Take a look to 2-cfn-init.yaml at section 10, line 46.
+
+#### _-> Sources_
+- We can download whole compressed archives from the web and unpack them on the EC2 instance directly
+- It's very handy if you have a set of standardized scripts for your EC2 instances that you store in S3 for example
+- Or if you want to download a whole GitHub project directly on your EC2 instace
+- Supported formats: tar, tar+gzip, tar+bz2, zip.
+```yaml
+  sources:
+    "/home/ec2-user/aws-cli": "https://github.com/aws/aws-cli/tarball/master"
+```
+### AWS::CloudFormation::Authentication
