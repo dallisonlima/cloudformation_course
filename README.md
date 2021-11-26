@@ -209,13 +209,12 @@ Consitions are used to allow, conditionally, the creation of resources or output
       AvailabilityZone: !GetAtt EC2Instance.AvailabilityZone
 ```
 ### Rules
-
-**1 -** What are Rules used for ?
+#### **1 -** What are Rules used for ?
 - Parameters section gives us ability to validate within a single parameter (Type, Min/MaxValue, AllowedValues, AllowedPattern)
 - **Rules** used to perform parameter validations based on the values of other parameters (cross-parameter validation)
 - For example: ensure that all subnets selected are within the same VPC
 
-**2 -** How to define a Rule ?
+#### **2 -** How to define a Rule ?
 - Each Rule consist of:
   - **Rule Condition (optional):** determines when a rule takes effect/assertions applied (only one per rule);
   - **Assertions:** describes whats values are allowed for a particular parameter. Can contain one or more asserts.
@@ -239,7 +238,7 @@ Consitions are used to allow, conditionally, the creation of resources or output
             rule-specific intrinsic function: Value03
           AssertDescription: Information about this assert
 ```
-**3 -** Rules example
+#### **3 -** Rules example
 - Enforce users to provide an ACM certificate ARN if they configure an SSL listener on an Application Load Balancer
 
 ```yaml
@@ -271,3 +270,31 @@ Rules-specific Intrinsic Functions
   - Fn::RefAll
   - Fn::ValueOf
   - Fn::ValueOfAll
+
+### Metadata
+#### **1 -** What's Metadata?
+- You can use the optional metadata section to include arbitrary YAML that provide details about the template or resource
+- For example:
+  ```yaml
+    Metadata:
+      Instaces:
+        Description: "Information about the instances"
+      Databases:
+        Description: "Information about the database"
+  ```
+#### **2 -** Special Metadata Keys?
+- We have already encoutered the Metadata section when dealing with the Designer
+- There're 4 Metadata keys that have special meaning
+  - _AWS::CloudFormation::Designer_ -> Describes how the resources are laid out in your template. This is automatically added by CloudFormation Designer;
+  - _AWS::CloudFormation::Interface_ -> Define grouping and ordering of input parameters when they're displayed in the AWS Console;
+  - _AWS::CloudFormation::Authentication_ -> User to specify authentication credentials for files or sources that you specify in AWS::CloudFormation::Init
+  - _AWS::CloudFormation::Init_ -> Define configuration tasks for cfn-init. It's the most powerful usage of the Metadata.
+
+### CFN-Init and EC2 User Data
+- Many of the CloudFormation templates will be about provisioning computing resources in your AWS Cloud
+- These resources can be either
+  - EC2 Instances
+  - Auto Scaling Groups
+  - etc.
+- Usually, you want the instances to be self configured so that they can perform the job they're supposed to peform
+- You can fully automate your EC2 fleet state with CloudFormation Init
