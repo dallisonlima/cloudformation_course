@@ -390,4 +390,78 @@ Rules-specific Intrinsic Functions
   sources:
     "/home/ec2-user/aws-cli": "https://github.com/aws/aws-cli/tarball/master"
 ```
+#### _-> Files_
+- Files are very powerful as you have full control over any content you wnat
+- They can come from a specific URL or can be written inline
+- Additional attributes:
+  - source: URL to load file from
+  - authentication: name of authentication method to use (used with AWS::CloudFormation::Authentication) - ex.: for files that are protected by user/pass
+```yaml
+  files:
+    /tmp/setup.mysql:
+      content: !Sub |
+        CREATE DATABASE ${DBName};
+        CREATE USER '${DBUsername'@'localhost' IDENTIFIED BY '${DBPassword}'
+        GRANT ALL ON ${DBName}.*TO'$DBUsername}'@'localhost';
+        FLUSH PRIVILEGES;
+      mode: "000644"
+      owner: "root"
+      group: "root"
+```
+#### Function Fn::Sub
+- Fn::Sub, or !Sub as a shorthand, is used to substitute variables from a text. It's a very handy function that will allow you to fully customize your templates
+- For example, you can combine Fn:Sub with References or AWS Pseudo variables !
+- String must contain ${VariableName} and will substitute them
+```yaml
+  !Sub
+    - String
+    - { Var1Name: Var1Value, Var2Name: Var2Value}
+  !Sub String
+```
+#### Commands
+- You can run commands one at a time in the alphabetical order
+- You can set a directory from which that command is run, environment variables
+- You can provide a test to control whether the command is executed or not (for example: if a file doesn't exist, run the download command)
+- Example: call the echo command only if the doesn't exist
+```yaml
+  commands:
+    test:
+      command: "echo \"$MAGIC\" > test.txt"
+    env:
+      MAGIC: "I come from the environment!"
+    cwd: "~"
+    test: "test ! -e ~/test.txt"
+    ignoreErrors: "false"
+```
+
+#### Services
+- Launch a bunch of services at EC2 instance launch
+- Ensure services are started when files changed, or packahes are update by cfn-init. How awesome is that?
+```yaml
+  services:
+    sysvinit:
+      nginx:
+          enabled: 'true'
+          ensureRunning: 'true'
+          files:
+            - "/etc/nginx/nginx.conf"
+          sources:
+            - "/var/www/html"
+      php-fastcgi:
+        enabled: 'true'
+        ensureRunning: 'true'
+        packages:
+          yum:
+            - "php"
+            - "spawn-fcgi"      
+      postfix:
+        enabled: 'false'
+        ensureRunning: 'false'
+```
 ### AWS::CloudFormation::Authentication
+- Used yo specify authentication credentials for __files__ or __sources__ in AWS::CloudFormation::Init
+- Two types:
+  - basic: used when the source is a URL
+  - S3: used when the source is an S3 bucket
+> Prefer using Roles instead of access keys for EC2 instaces !
+
