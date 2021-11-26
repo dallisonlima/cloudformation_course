@@ -94,26 +94,6 @@ Parameters:
       HVM64: ami-06098fd00463352b6
     ap-northeast-2:
       HVM64: ami-07464b2b9929898f8
-    ap-northeast-3:
-      HVM64: ami-0b96303a469fa0678
-    ap-south-1:
-      HVM64: ami-0bcf5425cdc1d8a85
-    ap-southeast-1:
-      HVM64: ami-03ca998611da0fe12
-    ap-southeast-2:
-      HVM64: ami-06202e06492f46177
-    ca-central-1:
-      HVM64: ami-09934b230a2c41883
-    eu-central-1:
-      HVM64: ami-0db9040eb3ab74509
-    eu-north-1:
-      HVM64: ami-02baf2b4223a343e8
-    eu-south-1:
-      HVM64: ami-081e7f992eee19465
-    eu-west-1:
-      HVM64: ami-0ffea00000f287d30
-    eu-west-2:
-      HVM64: ami-0fbec3e0504ee1970
   # instance types available
   EnvironmentToInstanceType:
     development:
