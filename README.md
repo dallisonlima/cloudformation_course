@@ -208,4 +208,66 @@ Consitions are used to allow, conditionally, the creation of resources or output
       Size: 100
       AvailabilityZone: !GetAtt EC2Instance.AvailabilityZone
 ```
+### Rules
 
+**1 -** What are Rules used for ?
+- Parameters section gives us ability to validate within a single parameter (Type, Min/MaxValue, AllowedValues, AllowedPattern)
+- **Rules** used to perform parameter validations based on the values of other parameters (cross-parameter validation)
+- For example: ensure that all subnets selected are within the same VPC
+
+**2 -** How to define a Rule ?
+- Each Rule consist of:
+  - **Rule Condition (optional):** determines when a rule takes effect/assertions applied (only one per rule);
+  - **Assertions:** describes whats values are allowed for a particular parameter. Can contain one or more asserts.
+- If you don't define a Rule COndition, the rule's assertions will take effect with every create/update operation.
+
+```yaml
+  Rules:
+    Rule01:
+      Assertions:
+        - Assert:
+            rule-specific intrinsic function: Value01
+          AssertDescription: Information about this assert
+    Rule02:
+      RuleCondition:
+        rule-specific intrinsic function: Value02
+      Assertions:
+        - Assert:
+            rule-specific intrinsic function: Value03
+          AssertDescription: Information about this assert
+        - Assert:
+            rule-specific intrinsic function: Value03
+          AssertDescription: Information about this assert
+```
+**3 -** Rules example
+- Enforce users to provide an ACM certificate ARN if they configure an SSL listener on an Application Load Balancer
+
+```yaml
+  Rules:
+    IsSSLCertificate:
+      RuleCondition: !Equals
+        - !Ref UseSSL
+        - Yes
+      Assertions:
+        - Assert: Not
+          - !Equals
+            - !Ref ALBSSLCertificateARN
+            - ''
+          AssertDescription: 'ACM Certificate value can not be empty if SSL is required'
+```
+Rules-specific Intrinsic Functions
+- Used to define a Rule condition and assertions
+- Can only be used in the Rules section
+- Functions can be nested, but **the result of a rule condition or assertion must be either true or false**
+- Supported Functions:
+  - Fn::And
+  - Fn::Contains
+  - Fn::EachMemberEquals
+  - Fn::EachMemberln
+  - Fn::Equals
+  - Fn::If
+  - Fn::Not
+  - Fn::Or
+  - Fn::RefAll
+  - Fn::ValueOf
+  - Fn::ValueOfAll
