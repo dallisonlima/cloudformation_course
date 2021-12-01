@@ -546,3 +546,52 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
   - The nested stack only is important to the higher-level (it's not shared)
 ![Division schema for Nested Stacks](/images/nested-2.png "Nested Stacks")
 
+#### Exported Stack Output Values vs. Using Nested Stacks
+- If you have a central resource that is shared between many different other stacks, use Exported Stack Output Values
+- If you need other stacks to be updated right away if a central resource is updated, use Exported Stack Output Values
+- If the resources can be dedicated to one stack only and must be re-usable pieces of code, use Nested Stacks
+- Note that you will need to update each Root stack manually in case of Nested stack updated
+
+### StackSets
+- Create, update, or delete stacks across multiple accounts and regions with a single operation/template.
+- Administrator account to create StackSets
+- Target accounts to create, update, delete stacks instances from StackSets
+- When you update a stack set, _all_ associated stack instances are updated throughout all accounts and regions
+- Regional service
+- Can be applied into all accounts of an AWS organization
+![Stacksets](/images/stacksets.png "Stacksets")
+
+#### Stacksets Operations
+- <font color="blue"> Create Stackset</font>
+  - Provide template + target accounts/regions
+- <font color="blue">Update StackSet</font>
+  - Upsate always affect all stack (you can't selectively update some stacks in the StackSet but not others)
+- <font color="blue">Delete Stacks</font>
+  - Delete Stack and its resources from target accounts/regions
+  - Delete stack from your StackSet (the stack will continue to run independently)
+  - Delete all stacks from your StackSet (prepare for StackSet deletion)
+- <font color="blue">Delete StackSet</font>
+  - Must delete all stask instance within StackSet to delete it
+
+#### StackSet Deployment Options
+- <font color="blue">Deployment Order</font>
+  - Order of regions where stacks are deployed
+  - Operations performed one region at a time
+- <font color="blue">Maximum Concurrent Accounts</font>
+  - Max. number/percentage of target accounts per region to whicj you can deploy stacks at one time
+- <font color="blue">Failure Tolerance</font>
+  - Max. number/percentage (target accounts per region) of stack operation failures that can occur before CloudFormation stops operation in all regions
+- <font color="blue">Region Concurrency</font>
+  - Whether StackSet deployed into regions **Sequential (default**) or **Parallel**
+- <font color="blue">Retain Stacks</font>
+-   Used when deleting StackSet to keep stack and their resources running when removed from StackSet.
+
+#### Permission Models for StackSet
+- **Set-managed Permission**s
+  - Create the IAM roles (with established trusted relationship) in both administrator and target accounts
+  - Deploy to any target account in whicj you have permissions to create IAM role
+- **Service-managed Permissions**
+  - Deploy to accounts managed by AWS Organizations
+  - Stackset create the IAM roles on your behalf (enable trusted access with AWS Organizations)
+  - Must enable all features in AWS Organization
+  - Ability to deploy to accounts added to your organization in the future (Automatic Deployments)
