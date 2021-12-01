@@ -50,6 +50,7 @@
 
 ### 2 - Mappings
 -> Mappings are fixed variables within your CloudFormation template
+
 -> They're very handy to differentiate between diferent environments (dev vs prod), regions (AWS regions), AMI types, etc.
 - Example:
 
@@ -595,3 +596,173 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
   - Stackset create the IAM roles on your behalf (enable trusted access with AWS Organizations)
   - Must enable all features in AWS Organization
   - Ability to deploy to accounts added to your organization in the future (Automatic Deployments)
+
+### StackSet Drift Detection
+- Performs drift detection on the stack associated with each stack instance in the StackSet
+- If the current state of a resource in a stack varies from the expected state:
+  - The stack considered drifted
+  - And the stack instance that the stack associated with considered drifted
+  - And the StackSet is condidered drifted
+- Drift detection indetifies unmanadeg changes (outside CloudFormation)
+- Changes made through CloudFormation to a stack directly (not at the StackSet level), aren't considered drifted
+- You can stop drift detection on a StackSet
+
+### Intrinsic Functions
+#### Fn::Ref 
+- The ```Fn::Ref``` function can be leveraged to reference
+  - Prameters => returbs the value of the parameter;
+  - Resources => returns the physical ID of the underlying resource (ex.: EC2 ID)
+- The shorthand for this in YAML is ```!Ref```
+
+```yaml
+  DbSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+```
+#### Fn::GetAtt
+- Attributes are attached to any resources you create
+- To know the attributes of your resources, the best place to look at is the documentation
+- For example: the AZ of an EC2 machine!
+
+```yaml
+  Resources:
+    EC2Instance:
+      Type: AWS::EC2::Instance
+      Properties:
+        ImageId: ami-0742b4e673072066f
+        InstanceType: t2.micro
+```
+
+```yaml
+  NewVolume:
+    Type: AWS::EC2::Volume
+    Condition: CreateProdResources
+    Properties:
+      Size: 100
+      AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
+```
+#### Fn::FindMap
+- We use ```Fn:FindInMap``` to return a named value from a specific key
+- !FindMap [MapName, TopLevelKey, SecondLevelKey]
+
+#### Fn::ImportValue
+- Import values that are exported in other stacks
+- For this, we user the ```Fn::ImportValue``` function
+```yaml
+  Resources:
+    MySecureInstance:
+      Type: AWS::EC2::Instance
+      Properties:
+        AvailabilityZone: us-east-1a
+        ImageId: ami-0742b4e673072066f
+        InstanceType: ts.micro
+        SecurityGroups:
+          - !ImportValue SSHSecurityGroup
+```
+#### Fn::Join
+- Join values with a delimiter
+  ```yaml
+    !Join [ delimiter, [comma-delimited list of value] ]
+  ```
+- This creates " a : b : c "
+```yaml
+  !Join [ ":", [ a, b, c] ]
+```
+#### Fn::Base64
+- Convert String to it's Base64 representation
+```yaml
+  !Base64 valueToEncode
+```
+- Example: pass encoded data to EC2 Instance's UserData porperty
+
+```yaml
+  Resources:
+    WebServer:
+      Type: AWS::EC2::Instance
+      Properties:
+      ...
+      UserData:
+      Fn::Base64: |
+        #!/bin/bash
+        yum update -y
+        yum install -h httpd
+```
+#### Fn::Cidr
+- Returns an array of CIDR address blocks
+```yaml
+  !Cidr [ipBlock, count, cidrBits]
+```
+- Parameters:
+  - ipBlock: CIDR address block to be split
+  - count: number of CIDRs to generate (1-256)
+  - cidrBits: number of subnet bits of the CIDR, inverse of subnet mask (32-subnet_mask)
+```yaml
+  !Cidr ['192.168.0.0/24', 6, 5]
+```
+- Example: generate 6 CIDRs with a subnet mask "/27" (32-5=27) from a CIDR with a subnet mask "/24"
+
+CIDRs            |
+-----------------|
+192.168.0.0/27   |
+192.168.0.32/27  |
+192.168.0.64/27  |
+192.168.0.128/27 |
+192.168.0.160/27 |
+192.168.0.192/27 |
+
+#### Fn::GetAZs
+- Returns an array of Availability Zones in a region in alphabetical order
+```yaml
+  !GetAZs region
+```
+- This example returns ["us-east-2","us-east-2b","us-east-2c"]
+```yaml
+  # Assume stack created in us-east-2
+  !GetAZs: ""
+  !GetAZs: !Ref "AWS::Region"
+
+  # Directly specify region
+  !GetAZs: us-east-2
+```
+#### Fn::Select
+- Returns a single object from an array of objects by index
+```yaml
+  !Select [ index, listOfObjects ]
+```
+- Examples:
+```yaml
+  # This returns "grapes"
+  !Select [ "1", [ "apples", "grapes", "oranges", "limons" ] ]
+```
+
+```yaml
+  Resources: 
+    MyEC2Instance:
+      Type: AWS::EC2::Instance
+      Properties:
+      ...
+      # Returns "us-east-1a" (assume stack in us-east-1)
+      - 0
+      - Fn::GetAZs: !Ref "AWS::Region"
+```
+
+#### Fn:Split
+- Split a String into a set of String values
+```yaml
+  !Split [delimiter, sourceString]
+```
+- This returns the following: ["a", "b", "c"]
+
+```yaml
+  !Split [ "|", "a|b|c" ]
+```
+
+#### Fn::Transform
+- Specifies a CloudFormation Macro(s) to perform custom preocessing on the template
+```yaml
+  Transform:
+    Name: macroName
+    Parameters:
+      Key: value
+```
