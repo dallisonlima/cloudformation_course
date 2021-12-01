@@ -4,6 +4,8 @@
 
 * [EC2 Instance Resource Type](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html)
 
+*[CloudFormation Drift](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/resource-import-supported-resources.html)
+
 ### Frequently Questions
 #### I - About resources
 **1 -** Can I create a dynamic number of resources ?
@@ -438,10 +440,84 @@ Rules-specific Intrinsic Functions
         enabled: 'false'
         ensureRunning: 'false'
 ```
-### AWS::CloudFormation::Authentication
+#### AWS::CloudFormation::Authentication
 - Used yo specify authentication credentials for __files__ or __sources__ in AWS::CloudFormation::Init
 - Two types:
   - basic: used when the source is a URL
   - S3: used when the source is an S3 bucket
 > Prefer using Roles instead of access keys for EC2 instaces !
 
+#### cfn-init
+- With the cfn-init script, it helps make complex EC2 configuration readable;
+- The EC2 instance will query the CloudFormation service to get init data
+- Logs go to /var/lgo/cfn-init.log
+
+#### cfn-signal & wait conditions
+- We still don't know how tell CLoudFormation that the EC2 instance got properly configured after a cfn-init
+- For this, we can use the cfn-signal script!
+  - We run cfn-signal right after cfn-init
+  - Tell CloudFormation service that the resource creation success/fail to keep on going or fail
+- We need to define WaitCondition:
+  - Clovk the template until it receives a signal from cfn-signal
+  - We attach a CreationPolicy (also works on EC2, ASG)
+  - We can define a Count > | (in case you need more than | signal)
+
+```yaml
+  CreationPolicy:
+    ResourceSignal:
+      Timeout: PT5M
+      Count: 1
+```
+#### cfn-hup
+- Can be used to tell your EC2 instance to look for Metadata changes every 15 minutes and aplly the Metadata configuration again
+- It's very powerful but you really need to try it out to understand how it works
+- It relies on a cfn-hup confiugration, see /etc/cfn/cfn-hup.conf and /etc/cfn/hooks.d/cfn-auto-reloader.conf
+
+#### Creation Policy
+- Prevent resource's status from reaching
+  CREATE_COMPLETE until CloudFormation receives either
+  - A specific number of success signal
+  - Timeout period exceeded
+- Use cfn-signal helper script to signal a resource
+- Supported resources:
+  - AWS::EC2::Instance, AWS::CloudFormation::WaitCondition
+  - AWS::AutoScaling::AutoScalingGroup, AWS::AppStream::Fleet
+- Example:waiting until your applications installed and configured on yout EC2 instance.
+
+#### Wait Condition Didn't Receive the Required Number of Signals from an Amazon EC2 Instance
+- Ensure that tha AMI you're using the AWS CloudFormation helper scripts installed. If the AMI doesn't include the helper scripts, you can also download them to your instance.
+- Verify that the cfn-init & cfn-signal command was successfully run on the instance. You can view logs, such as /var/log/cloud-init.log or /var/log/cfn-init.log, to help you debug the instance launch
+- You can retrieve the logs by logging in to your instance, but you must disable rollback on failure or else AWS CloudFormation deletes the instance after your stack fails to create
+- Verify that the instance has a connection to the Internet. If the instance is in a VPC the instance should be able to connect to the Internet though a NAT device ig it's in a private subnet or though an Internet gateway if it's in a public subnet.
+- For example, run: 
+  ```shell
+    curl -l https://aws.amazon.com 
+  ```
+
+#### User Data vs CloudFormation::Init vs Helper Scripts
+**EC2 User data** is an imperative way to provision/bootstrap the EC2 instance using Shell syntax
+
+**AWS::CloudFormation::Init** is a declarative way to provision/bootstrap the EC2 instance using YAML or JSON syntax
+
+**AWS::CloudFormation::Init** is useless if it’s NOT triggered by a script within the EC2 User Data
+
+Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn-init** or **cfn-hup**
+
+### CloudFormation Drift
+- CloudFormation Allows you to create infrastructure
+- But it doesn't protect you against manual configuration changes
+- How do we know if our resources have drifted?
+- We can use CloudFormation Drift!
+- Detect drift on an entire stack or on individual resources within a stack
+- We can resolve stack/resource drift by using Resource Import (discussed later)
+- Not all resources are supported yet, so please, see the [documentation](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/resource-import-supported-resources.html).
+
+### Nested Stacks
+ - Nested stacks are stacks as part of other stacks
+ - They allow you to isolate repeated patterns / common components in separete stacks and call them from other stacks
+ - Example:
+   - Load Balancer configuration that is re-used
+   - Security Group that is re-used
+ - Nested stacks are considered best practice
+ - To update a nested stack, always update the parent (root stack)
+ - Nested satcks can have nested stacks themselves
