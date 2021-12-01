@@ -4,9 +4,9 @@
 
 * [EC2 Instance Resource Type](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html)
 
-*[CloudFormation Drift](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/resource-import-supported-resources.html)
+* [CloudFormation Drift](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/resource-import-supported-resources.html)
 
-*[Great nested stacks example](https://github.com/aws-samples/ecs-refarch-cloudformation/blob/master/master.yaml)
+* [Great nested stacks example](https://github.com/aws-samples/ecs-refarch-cloudformation/blob/master/master.yaml)
 
 ### Frequently Questions
 #### I - About resources
