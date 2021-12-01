@@ -6,6 +6,8 @@
 
 *[CloudFormation Drift](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/resource-import-supported-resources.html)
 
+*[Great nested stacks example](https://github.com/aws-samples/ecs-refarch-cloudformation/blob/master/master.yaml)
+
 ### Frequently Questions
 #### I - About resources
 **1 -** Can I create a dynamic number of resources ?
@@ -521,3 +523,26 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
  - Nested stacks are considered best practice
  - To update a nested stack, always update the parent (root stack)
  - Nested satcks can have nested stacks themselves
+
+#### Nedted Stacks Update
+- To update a nested stack...
+- Ensure the opdated nested stacks are uploaded onto s4 first
+- Then re-uploade your **root** stack
+
+#### Nested Stacks Delete
+- Never delete or apply changes to the nested stack
+- Always do changes from the top-level stack
+
+#### Cross Stacks vs Nested Stacks
+- **Cross Stacks**
+  - Helpful when stacks have different lifecycles
+  - Use Outputs Export and Fn::ImportValue
+  - When you need to pass export values to many stacks (VPC id, etc)
+![Division schema for Cross Stacks](/images/nested.png "Cross Stacks")
+
+- **Nested Stacks**
+  - Helpful when components must be re-used 
+  - Ex: re-use how to properly configure an Application Load Balancer
+  - The nested stack only is important to the higher-level (it's not shared)
+![Division schema for Nested Stacks](/images/nested-2.png "Nested Stacks")
+
