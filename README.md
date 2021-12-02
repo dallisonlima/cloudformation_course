@@ -803,3 +803,15 @@ CIDRs            |
   - Skip the resources that can't rollback successfully (CloudFormation will mark the failed resources as UPDATE_COMPLETE)
 - You can't update a stack in this state
 - For nested stacks, rolling back the parent stack will attempt to roll back all the child stacks as well
+
+### Stack Policy
+- A JSON document that defines the update actions allowed on stack resources
+- Prevent stack resources from being unintentionally updated/deleted **during a stack update**
+- By default, all update actions are allowed on all resources
+- When enabled, all resources protected by default
+- Actions allowed (Update: Modify, Update:Replace, Update:Delete, Update:*)
+- Principal supportsonly the wildcard
+- To update protect only the wildcard(*)
+  - Create a temporary policy that overrides the stack policy
+  - The override policy doesn't permanently change the stack policy
+- Once created, can't be deleted (edit to allow all update actions on all resources)
