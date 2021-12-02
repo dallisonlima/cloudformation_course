@@ -1,4 +1,17 @@
-## Notes about course
+# Notes about course
+
+- [Links](#links)
+- [Frequently Questions](#frequently-questions)
+  - [About Resources](#about-resources)
+- [Tecnologias](#tecnologias)
+- [Policys](#policys)
+  - [Deletion Policy](#deletion-policy)
+  - [UpdateReplace Policy](#updatereplace-policy)
+- [Mappings](#mappings)
+- [Como usar]()
+- [Como usar]()
+
+
 ### Links
 * [Resources and types of resources](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 
@@ -8,8 +21,8 @@
 
 * [Great nested stacks example](https://github.com/aws-samples/ecs-refarch-cloudformation/blob/master/master.yaml)
 
-### Frequently Questions
-#### I - About resources
+## Frequently Questions
+### About resources
 **1 -** Can I create a dynamic number of resources ?
 - Yes, you can by using Cloudformation Macrons and Transform
 
