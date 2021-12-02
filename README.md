@@ -17,8 +17,6 @@
 - Almost. Only a select few niches are not there yet
 - You can work around that using CloudFormation Custom Resources
 
-## Notes
-
 ### 1 - Policys
 
 #### Deletion Policy
@@ -131,7 +129,7 @@ Resources:
    | AWS::Partition | Standard AWS region -> aws / Other regions -> aws-partitionname (ex.: China region -> aws-cn) |  
    | AWS::URLSuffix | amazonaws.com (ex. China region -> amazonaws.com.cn) |  
 
-### 3 - Outputs
+## Outputs
 -> As a name indicates, outputs are optional outputs values that we can import into other stacks. So we first need to export the outputs from a CloudFormation stack and another one can reference them.
 
 - The Outputs section declares optional outputs values that we can import into others stacks (if you export them first) !
@@ -139,7 +137,7 @@ Resources:
 - They're very useful for example if you define a network CloudFormation, and output the variables such as VPC ID and your Subnet IDs.
 - It's the best way to peform some collaboration cross stack, as you let expert handle their own part of the stack.
 
-### 4 - Conditions
+## Conditions
 Consitions are used to allow, conditionally, the creation of resources or outputs when based on a condition.
 
 - Conditions are used to control the creation of resources or outputs based on a condition.
@@ -149,7 +147,7 @@ Consitions are used to allow, conditionally, the creation of resources or output
   - Any parameter value
 - Each condition can reference another condition, parameter value or mapping
 
-#### How to define condition
+### How to define condition
 
 ```yaml
   Conditions:
@@ -163,7 +161,7 @@ Consitions are used to allow, conditionally, the creation of resources or output
   - Fn::Not
   - Fn::Or
 
-#### Using a Condition
+### Using a Condition
 - Conditions can be applied to resources / outputs / etc..
 
 ```yaml
@@ -172,7 +170,7 @@ Consitions are used to allow, conditionally, the creation of resources or output
       Type: AWS::EC2::VolumeAttachment
       Condition: CreateProdResouurces
 ```
-#### Fn::GetAtt
+### Fn::GetAtt
 - Attributes are attached to any resources you create
 - To know the attributes of your resources, the best place to look at is the documentation
 - For example: the AZ of an EC2 machine!
@@ -193,13 +191,13 @@ Consitions are used to allow, conditionally, the creation of resources or output
       Size: 100
       AvailabilityZone: !GetAtt EC2Instance.AvailabilityZone
 ```
-### Rules
-#### **1 -** What are Rules used for ?
+## Rules
+### What are Rules used for ?
 - Parameters section gives us ability to validate within a single parameter (Type, Min/MaxValue, AllowedValues, AllowedPattern)
 - **Rules** used to perform parameter validations based on the values of other parameters (cross-parameter validation)
 - For example: ensure that all subnets selected are within the same VPC
 
-#### **2 -** How to define a Rule ?
+### How to define a Rule ?
 - Each Rule consist of:
   - **Rule Condition (optional):** determines when a rule takes effect/assertions applied (only one per rule);
   - **Assertions:** describes whats values are allowed for a particular parameter. Can contain one or more asserts.
@@ -223,7 +221,7 @@ Consitions are used to allow, conditionally, the creation of resources or output
             rule-specific intrinsic function: Value03
           AssertDescription: Information about this assert
 ```
-#### **3 -** Rules example
+### Rules example
 - Enforce users to provide an ACM certificate ARN if they configure an SSL listener on an Application Load Balancer
 
 ```yaml
@@ -256,8 +254,8 @@ Rules-specific Intrinsic Functions
   - Fn::ValueOf
   - Fn::ValueOfAll
 
-### Metadata
-#### **1 -** What's Metadata?
+## Metadata
+### What's Metadata?
 - You can use the optional metadata section to include arbitrary YAML that provide details about the template or resource
 - For example:
   ```yaml
@@ -267,7 +265,7 @@ Rules-specific Intrinsic Functions
       Databases:
         Description: "Information about the database"
   ```
-#### **2 -** Special Metadata Keys?
+### Special Metadata Keys?
 - We have already encoutered the Metadata section when dealing with the Designer
 - There're 4 Metadata keys that have special meaning
   - _AWS::CloudFormation::Designer_ -> Describes how the resources are laid out in your template. This is automatically added by CloudFormation Designer;
@@ -275,7 +273,7 @@ Rules-specific Intrinsic Functions
   - _AWS::CloudFormation::Authentication_ -> User to specify authentication credentials for files or sources that you specify in AWS::CloudFormation::Init
   - _AWS::CloudFormation::Init_ -> Define configuration tasks for cfn-init. It's the most powerful usage of the Metadata.
 
-### CFN-Init and EC2 User Data
+## CFN-Init and EC2 User Data
 - Many of the CloudFormation templates will be about provisioning computing resources in your AWS Cloud
 - These resources can be either
   - EC2 Instances
@@ -284,11 +282,11 @@ Rules-specific Intrinsic Functions
 - Usually, you want the instances to be self configured so that they can perform the job they're supposed to peform
 - You can fully automate your EC2 fleet state with CloudFormation Init
 
-#### User Data in EC2 for CloudFormation
+### User Data in EC2 for CloudFormation
 - See the 1-ec2-user-data.yaml archive at section 10.
 > The importante thing to pass is the entire script through the function Fn::Base64
 
-#### Enter CloudFormation Helper Scripts
+### Enter CloudFormation Helper Scripts
 - We have 4 Python scripts, that come directly on AmazonLinux 2 AMI, or can be installed using yum on non-Amazon Linux AMIs
   - cfn-init: Used to retrieve and interpret the resources metadata, installing packages, creating files and starting services
   - sfn-signal: A simple wrapper to signal with a CreationPolicy or WaitCondition, enabling you to synchronize other resources in the stack with the application being ready
@@ -296,7 +294,7 @@ Rules-specific Intrinsic Functions
   - cfn-hup: A daemon to check for updates to the metadata and execute custom hooks when the changes are detected
 - Usual flow: cfn-init, then cfn-signal, then optionally cfn-hup.
 
-#### AWS::CloudFormation::Init
+### AWS::CloudFormation::Init
 
 ```yaml
   Resources:
@@ -332,7 +330,7 @@ Rules-specific Intrinsic Functions
   - <font color= "blue" >Commands:</font> run a series of commands
   - <font color= "blue" >Service:</font> launch a list of sysvinit
 
-#### _-> Packages_
+### _-> Packages_
 - You can install packages from the following repositories: apt, msi, python, rpm, rubygems and yum.
 - Packages are processed in the following order: rpm, yum/apt, and then rubygems and python.
 - You can specify a version, or no version (empty array - means latest)
@@ -349,7 +347,7 @@ Rules-specific Intrinsic Functions
 ```
 - Take a look 2-cfn-init.yaml in section 10.
 
-#### _-> Groups and Users_
+### _-> Groups and Users_
 - If you want to have multiple users and groups (with an opitional gid) in your EC2 instance, you can do the following
 ```yaml
   groups:
@@ -366,7 +364,7 @@ Rules-specific Intrinsic Functions
 ```
 - Take a look to 2-cfn-init.yaml at section 10, line 46.
 
-#### _-> Sources_
+### _-> Sources_
 - We can download whole compressed archives from the web and unpack them on the EC2 instance directly
 - It's very handy if you have a set of standardized scripts for your EC2 instances that you store in S3 for example
 - Or if you want to download a whole GitHub project directly on your EC2 instace
@@ -375,7 +373,7 @@ Rules-specific Intrinsic Functions
   sources:
     "/home/ec2-user/aws-cli": "https://github.com/aws/aws-cli/tarball/master"
 ```
-#### _-> Files_
+### _-> Files_
 - Files are very powerful as you have full control over any content you wnat
 - They can come from a specific URL or can be written inline
 - Additional attributes:
@@ -393,7 +391,7 @@ Rules-specific Intrinsic Functions
       owner: "root"
       group: "root"
 ```
-#### Function Fn::Sub
+### Function Fn::Sub
 - Fn::Sub, or !Sub as a shorthand, is used to substitute variables from a text. It's a very handy function that will allow you to fully customize your templates
 - For example, you can combine Fn:Sub with References or AWS Pseudo variables !
 - String must contain ${VariableName} and will substitute them
@@ -403,7 +401,7 @@ Rules-specific Intrinsic Functions
     - { Var1Name: Var1Value, Var2Name: Var2Value}
   !Sub String
 ```
-#### Commands
+### Commands
 - You can run commands one at a time in the alphabetical order
 - You can set a directory from which that command is run, environment variables
 - You can provide a test to control whether the command is executed or not (for example: if a file doesn't exist, run the download command)
@@ -419,7 +417,7 @@ Rules-specific Intrinsic Functions
     ignoreErrors: "false"
 ```
 
-#### Services
+### Services
 - Launch a bunch of services at EC2 instance launch
 - Ensure services are started when files changed, or packahes are update by cfn-init. How awesome is that?
 ```yaml
@@ -443,19 +441,19 @@ Rules-specific Intrinsic Functions
         enabled: 'false'
         ensureRunning: 'false'
 ```
-#### AWS::CloudFormation::Authentication
+### AWS::CloudFormation::Authentication
 - Used yo specify authentication credentials for __files__ or __sources__ in AWS::CloudFormation::Init
 - Two types:
   - basic: used when the source is a URL
   - S3: used when the source is an S3 bucket
 > Prefer using Roles instead of access keys for EC2 instaces !
 
-#### cfn-init
+### cfn-init
 - With the cfn-init script, it helps make complex EC2 configuration readable;
 - The EC2 instance will query the CloudFormation service to get init data
 - Logs go to /var/lgo/cfn-init.log
 
-#### cfn-signal & wait conditions
+### cfn-signal & wait conditions
 - We still don't know how tell CLoudFormation that the EC2 instance got properly configured after a cfn-init
 - For this, we can use the cfn-signal script!
   - We run cfn-signal right after cfn-init
@@ -471,12 +469,12 @@ Rules-specific Intrinsic Functions
       Timeout: PT5M
       Count: 1
 ```
-#### cfn-hup
+### cfn-hup
 - Can be used to tell your EC2 instance to look for Metadata changes every 15 minutes and aplly the Metadata configuration again
 - It's very powerful but you really need to try it out to understand how it works
 - It relies on a cfn-hup confiugration, see /etc/cfn/cfn-hup.conf and /etc/cfn/hooks.d/cfn-auto-reloader.conf
 
-#### Creation Policy
+### Creation Policy
 - Prevent resource's status from reaching
   CREATE_COMPLETE until CloudFormation receives either
   - A specific number of success signal
@@ -487,7 +485,7 @@ Rules-specific Intrinsic Functions
   - AWS::AutoScaling::AutoScalingGroup, AWS::AppStream::Fleet
 - Example:waiting until your applications installed and configured on yout EC2 instance.
 
-#### Wait Condition Didn't Receive the Required Number of Signals from an Amazon EC2 Instance
+### Wait Condition Didn't Receive the Required Number of Signals from an Amazon EC2 Instance
 - Ensure that tha AMI you're using the AWS CloudFormation helper scripts installed. If the AMI doesn't include the helper scripts, you can also download them to your instance.
 - Verify that the cfn-init & cfn-signal command was successfully run on the instance. You can view logs, such as /var/log/cloud-init.log or /var/log/cfn-init.log, to help you debug the instance launch
 - You can retrieve the logs by logging in to your instance, but you must disable rollback on failure or else AWS CloudFormation deletes the instance after your stack fails to create
@@ -497,7 +495,7 @@ Rules-specific Intrinsic Functions
     curl -l https://aws.amazon.com 
   ```
 
-#### User Data vs CloudFormation::Init vs Helper Scripts
+### User Data vs CloudFormation::Init vs Helper Scripts
 **EC2 User data** is an imperative way to provision/bootstrap the EC2 instance using Shell syntax
 
 **AWS::CloudFormation::Init** is a declarative way to provision/bootstrap the EC2 instance using YAML or JSON syntax
@@ -506,7 +504,7 @@ Rules-specific Intrinsic Functions
 
 Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn-init** or **cfn-hup**
 
-### CloudFormation Drift
+## CloudFormation Drift
 - CloudFormation Allows you to create infrastructure
 - But it doesn't protect you against manual configuration changes
 - How do we know if our resources have drifted?
@@ -515,7 +513,7 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
 - We can resolve stack/resource drift by using Resource Import (discussed later)
 - Not all resources are supported yet, so please, see the [documentation](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/resource-import-supported-resources.html).
 
-### Nested Stacks
+## Nested Stacks
  - Nested stacks are stacks as part of other stacks
  - They allow you to isolate repeated patterns / common components in separete stacks and call them from other stacks
  - Example:
@@ -525,16 +523,16 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
  - To update a nested stack, always update the parent (root stack)
  - Nested satcks can have nested stacks themselves
 
-#### Nedted Stacks Update
+### Nedted Stacks Update
 - To update a nested stack...
 - Ensure the opdated nested stacks are uploaded onto s4 first
 - Then re-uploade your **root** stack
 
-#### Nested Stacks Delete
+### Nested Stacks Delete
 - Never delete or apply changes to the nested stack
 - Always do changes from the top-level stack
 
-#### Cross Stacks vs Nested Stacks
+### Cross Stacks vs Nested Stacks
 - **Cross Stacks**
   - Helpful when stacks have different lifecycles
   - Use Outputs Export and Fn::ImportValue
@@ -547,13 +545,13 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
   - The nested stack only is important to the higher-level (it's not shared)
 ![Division schema for Nested Stacks](/images/nested-2.png "Nested Stacks")
 
-#### Exported Stack Output Values vs. Using Nested Stacks
+### Exported Stack Output Values vs. Using Nested Stacks
 - If you have a central resource that is shared between many different other stacks, use Exported Stack Output Values
 - If you need other stacks to be updated right away if a central resource is updated, use Exported Stack Output Values
 - If the resources can be dedicated to one stack only and must be re-usable pieces of code, use Nested Stacks
 - Note that you will need to update each Root stack manually in case of Nested stack updated
 
-### StackSets
+## StackSets
 - Create, update, or delete stacks across multiple accounts and regions with a single operation/template.
 - Administrator account to create StackSets
 - Target accounts to create, update, delete stacks instances from StackSets
@@ -562,7 +560,7 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
 - Can be applied into all accounts of an AWS organization
 ![Stacksets](/images/stacksets.png "Stacksets")
 
-#### Stacksets Operations
+### Stacksets Operations
 - <font color="blue"> Create Stackset</font>
   - Provide template + target accounts/regions
 - <font color="blue">Update StackSet</font>
@@ -574,7 +572,7 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
 - <font color="blue">Delete StackSet</font>
   - Must delete all stask instance within StackSet to delete it
 
-#### StackSet Deployment Options
+### StackSet Deployment Options
 - <font color="blue">Deployment Order</font>
   - Order of regions where stacks are deployed
   - Operations performed one region at a time
@@ -587,7 +585,7 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
 - <font color="blue">Retain Stacks</font>
 -   Used when deleting StackSet to keep stack and their resources running when removed from StackSet.
 
-#### Permission Models for StackSet
+### Permission Models for StackSet
 - **Set-managed Permission**s
   - Create the IAM roles (with established trusted relationship) in both administrator and target accounts
   - Deploy to any target account in whicj you have permissions to create IAM role
@@ -606,166 +604,6 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
 - Drift detection indetifies unmanadeg changes (outside CloudFormation)
 - Changes made through CloudFormation to a stack directly (not at the StackSet level), aren't considered drifted
 - You can stop drift detection on a StackSet
-
-### Intrinsic Functions
-#### Fn::Ref 
-- The ```Fn::Ref``` function can be leveraged to reference
-  - Prameters => returbs the value of the parameter;
-  - Resources => returns the physical ID of the underlying resource (ex.: EC2 ID)
-- The shorthand for this in YAML is ```!Ref```
-
-```yaml
-  DbSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref MyVPC
-```
-#### Fn::GetAtt
-- Attributes are attached to any resources you create
-- To know the attributes of your resources, the best place to look at is the documentation
-- For example: the AZ of an EC2 machine!
-
-```yaml
-  Resources:
-    EC2Instance:
-      Type: AWS::EC2::Instance
-      Properties:
-        ImageId: ami-0742b4e673072066f
-        InstanceType: t2.micro
-```
-
-```yaml
-  NewVolume:
-    Type: AWS::EC2::Volume
-    Condition: CreateProdResources
-    Properties:
-      Size: 100
-      AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
-```
-#### Fn::FindMap
-- We use ```Fn:FindInMap``` to return a named value from a specific key
-- !FindMap [MapName, TopLevelKey, SecondLevelKey]
-
-#### Fn::ImportValue
-- Import values that are exported in other stacks
-- For this, we user the ```Fn::ImportValue``` function
-```yaml
-  Resources:
-    MySecureInstance:
-      Type: AWS::EC2::Instance
-      Properties:
-        AvailabilityZone: us-east-1a
-        ImageId: ami-0742b4e673072066f
-        InstanceType: ts.micro
-        SecurityGroups:
-          - !ImportValue SSHSecurityGroup
-```
-#### Fn::Join
-- Join values with a delimiter
-  ```yaml
-    !Join [ delimiter, [comma-delimited list of value] ]
-  ```
-- This creates " a : b : c "
-```yaml
-  !Join [ ":", [ a, b, c] ]
-```
-#### Fn::Base64
-- Convert String to it's Base64 representation
-```yaml
-  !Base64 valueToEncode
-```
-- Example: pass encoded data to EC2 Instance's UserData porperty
-
-```yaml
-  Resources:
-    WebServer:
-      Type: AWS::EC2::Instance
-      Properties:
-      ...
-      UserData:
-      Fn::Base64: |
-        #!/bin/bash
-        yum update -y
-        yum install -h httpd
-```
-#### Fn::Cidr
-- Returns an array of CIDR address blocks
-```yaml
-  !Cidr [ipBlock, count, cidrBits]
-```
-- Parameters:
-  - ipBlock: CIDR address block to be split
-  - count: number of CIDRs to generate (1-256)
-  - cidrBits: number of subnet bits of the CIDR, inverse of subnet mask (32-subnet_mask)
-```yaml
-  !Cidr ['192.168.0.0/24', 6, 5]
-```
-- Example: generate 6 CIDRs with a subnet mask "/27" (32-5=27) from a CIDR with a subnet mask "/24"
-
-CIDRs            |
------------------|
-192.168.0.0/27   |
-192.168.0.32/27  |
-192.168.0.64/27  |
-192.168.0.128/27 |
-192.168.0.160/27 |
-192.168.0.192/27 |
-
-#### Fn::GetAZs
-- Returns an array of Availability Zones in a region in alphabetical order
-```yaml
-  !GetAZs region
-```
-- This example returns ["us-east-2","us-east-2b","us-east-2c"]
-```yaml
-  # Assume stack created in us-east-2
-  !GetAZs: ""
-  !GetAZs: !Ref "AWS::Region"
-
-  # Directly specify region
-  !GetAZs: us-east-2
-```
-#### Fn::Select
-- Returns a single object from an array of objects by index
-```yaml
-  !Select [ index, listOfObjects ]
-```
-- Examples:
-```yaml
-  # This returns "grapes"
-  !Select [ "1", [ "apples", "grapes", "oranges", "limons" ] ]
-```
-
-```yaml
-  Resources: 
-    MyEC2Instance:
-      Type: AWS::EC2::Instance
-      Properties:
-      ...
-      # Returns "us-east-1a" (assume stack in us-east-1)
-      - 0
-      - Fn::GetAZs: !Ref "AWS::Region"
-```
-
-#### Fn:Split
-- Split a String into a set of String values
-```yaml
-  !Split [delimiter, sourceString]
-```
-- This returns the following: ["a", "b", "c"]
-
-```yaml
-  !Split [ "|", "a|b|c" ]
-```
-
-#### Fn::Transform
-- Specifies a CloudFormation Macro(s) to perform custom preocessing on the template
-```yaml
-  Transform:
-    Name: macroName
-    Parameters:
-      Key: value
-```
 
 ## CloudFormatino Deployment Options
 ### ChangeSets
@@ -857,3 +695,163 @@ CIDRs            |
 - For example:
   - Create a workflow that automatically builds a test stack when you submit a CloudFormation template to a code repository
   - After CloudFormation builds the test stack, you can test it and then decide whether to push changes to production stack
+
+## Intrinsic Functions
+### Fn::Ref 
+- The ```Fn::Ref``` function can be leveraged to reference
+  - Prameters => returbs the value of the parameter;
+  - Resources => returns the physical ID of the underlying resource (ex.: EC2 ID)
+- The shorthand for this in YAML is ```!Ref```
+
+```yaml
+  DbSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+```
+### Fn::GetAtt
+- Attributes are attached to any resources you create
+- To know the attributes of your resources, the best place to look at is the documentation
+- For example: the AZ of an EC2 machine!
+
+```yaml
+  Resources:
+    EC2Instance:
+      Type: AWS::EC2::Instance
+      Properties:
+        ImageId: ami-0742b4e673072066f
+        InstanceType: t2.micro
+```
+
+```yaml
+  NewVolume:
+    Type: AWS::EC2::Volume
+    Condition: CreateProdResources
+    Properties:
+      Size: 100
+      AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
+```
+### Fn::FindMap
+- We use ```Fn:FindInMap``` to return a named value from a specific key
+- !FindMap [MapName, TopLevelKey, SecondLevelKey]
+
+### Fn::ImportValue
+- Import values that are exported in other stacks
+- For this, we user the ```Fn::ImportValue``` function
+```yaml
+  Resources:
+    MySecureInstance:
+      Type: AWS::EC2::Instance
+      Properties:
+        AvailabilityZone: us-east-1a
+        ImageId: ami-0742b4e673072066f
+        InstanceType: ts.micro
+        SecurityGroups:
+          - !ImportValue SSHSecurityGroup
+```
+### Fn::Join
+- Join values with a delimiter
+  ```yaml
+    !Join [ delimiter, [comma-delimited list of value] ]
+  ```
+- This creates " a : b : c "
+```yaml
+  !Join [ ":", [ a, b, c] ]
+```
+### Fn::Base64
+- Convert String to it's Base64 representation
+```yaml
+  !Base64 valueToEncode
+```
+- Example: pass encoded data to EC2 Instance's UserData porperty
+
+```yaml
+  Resources:
+    WebServer:
+      Type: AWS::EC2::Instance
+      Properties:
+      ...
+      UserData:
+      Fn::Base64: |
+        #!/bin/bash
+        yum update -y
+        yum install -h httpd
+```
+### Fn::Cidr
+- Returns an array of CIDR address blocks
+```yaml
+  !Cidr [ipBlock, count, cidrBits]
+```
+- Parameters:
+  - ipBlock: CIDR address block to be split
+  - count: number of CIDRs to generate (1-256)
+  - cidrBits: number of subnet bits of the CIDR, inverse of subnet mask (32-subnet_mask)
+```yaml
+  !Cidr ['192.168.0.0/24', 6, 5]
+```
+- Example: generate 6 CIDRs with a subnet mask "/27" (32-5=27) from a CIDR with a subnet mask "/24"
+
+CIDRs            |
+-----------------|
+192.168.0.0/27   |
+192.168.0.32/27  |
+192.168.0.64/27  |
+192.168.0.128/27 |
+192.168.0.160/27 |
+192.168.0.192/27 |
+
+### Fn::GetAZs
+- Returns an array of Availability Zones in a region in alphabetical order
+```yaml
+  !GetAZs region
+```
+- This example returns ["us-east-2","us-east-2b","us-east-2c"]
+```yaml
+  # Assume stack created in us-east-2
+  !GetAZs: ""
+  !GetAZs: !Ref "AWS::Region"
+
+  # Directly specify region
+  !GetAZs: us-east-2
+```
+### Fn::Select
+- Returns a single object from an array of objects by index
+```yaml
+  !Select [ index, listOfObjects ]
+```
+- Examples:
+```yaml
+  # This returns "grapes"
+  !Select [ "1", [ "apples", "grapes", "oranges", "limons" ] ]
+```
+
+```yaml
+  Resources: 
+    MyEC2Instance:
+      Type: AWS::EC2::Instance
+      Properties:
+      ...
+      # Returns "us-east-1a" (assume stack in us-east-1)
+      - 0
+      - Fn::GetAZs: !Ref "AWS::Region"
+```
+
+### Fn:Split
+- Split a String into a set of String values
+```yaml
+  !Split [delimiter, sourceString]
+```
+- This returns the following: ["a", "b", "c"]
+
+```yaml
+  !Split [ "|", "a|b|c" ]
+```
+
+### Fn::Transform
+- Specifies a CloudFormation Macro(s) to perform custom preocessing on the template
+```yaml
+  Transform:
+    Name: macroName
+    Parameters:
+      Key: value
+```
