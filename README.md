@@ -856,4 +856,4 @@ CIDRs            |
 - Automatically build and test changes to your CloudFormation templates before promoting them to production stacks
 - For example:
   - Create a workflow that automatically builds a test stack when you submit a CloudFormation template to a code repository
-  - After CloudFormation builds the test stack, you can test it and then decide whether to push chandes to production stack
+  - After CloudFormation builds the test stack, you can test it and then decide whether to push changes to production stack
