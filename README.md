@@ -816,7 +816,7 @@ CIDRs            |
   - The override policy doesn't permanently change the stack policy
 - Once created, can't be deleted (edit to allow all update actions on all resources)
 
-#### Termination Protection on Stacks
+### Stacks Termination Protection 
 - To prevent accidental deletes of CloudFormation stacks, use TerminationProtection
 - Applied to any nested stacks
 - Tighten your IAM policies (Ex.: explicit deny on some user groups)
@@ -840,3 +840,20 @@ CIDRs            |
   - You want to achieve the least privilege principle
   - But you don't want to give the user all the required permissions to create the stack resources 
 - Give ability to users to create/update/delete the stack resources even if they don't have permissions to work with the resources in the stack
+
+### Quick-create Links For Stacks
+- Custom URLs that used to launch CLoudFormation Stacks quickly from AWS Console
+- Reduce the number of wizard pages and the amount of user input that's required
+- For example: create multiple URLs that specify diferrent values for the same template
+- CloudFormation ignores parametes:
+  - That don't exist in the template
+  - That defined with **NoEcho** property set to true
+
+## Continuous Delivery
+### Continuous Delivery with CodePipeline
+- Use CodePipeline to build a continuous delivery workflow (building a pipeline for CloudFormation stacks)
+- Rapidly and reably make changes to your AWS infrastructure
+- Automatically build and test changes to your CloudFormation templates before promoting them to production stacks
+- For example:
+  - Create a workflow that automatically builds a test stack when you submit a CloudFormation template to a code repository
+  - After CloudFormation builds the test stack, you can test it and then decide whether to push chandes to production stack
