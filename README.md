@@ -17,9 +17,9 @@
 - Almost. Only a select few niches are not there yet
 - You can work around that using CloudFormation Custom Resources
 
-### Policys
+## Policys
 
-#### Deletion Policy
+### Deletion Policy
 -> Control what happens when the CloudFormation template is deleted or when a resource is removed directly from a CloudFormation template
 -> Use with any resource
 - **DeletionPolicy=Retain:**
@@ -33,7 +33,7 @@
   - Note: for AWS::RDS::DBInsteance resources thas don't specify the DBClusterIdentifier property, the default policy is Snapshot
   - Note: to delete an S3 bucket, you need to first empty the bucket of its content
 
-#### UpdateReplace Policy
+### UpdateReplace Policy
 -> Controls what happens to a resource if you update a property whose update behavior is **Replacement**
 -> For example, updating RDS DBInstance's AvailabilityZone porperty
 -> Use with any resource
