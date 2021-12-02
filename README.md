@@ -17,7 +17,7 @@
 - Almost. Only a select few niches are not there yet
 - You can work around that using CloudFormation Custom Resources
 
-### 1 - Policys
+### Policys
 
 #### Deletion Policy
 -> Control what happens when the CloudFormation template is deleted or when a resource is removed directly from a CloudFormation template
@@ -46,7 +46,7 @@
   - RDS DBInstance, RDS DBCluster, Redshift Cluster, Neptune DBCluster
   - The snapshot doesn't exist in CloudFormation's scope
 
-### 2 - Mappings
+## Mappings
 -> Mappings are fixed variables within your CloudFormation template
 
 -> They're very handy to differentiate between diferent environments (dev vs prod), regions (AWS regions), AMI types, etc.
@@ -73,7 +73,7 @@
   - use parameters when the values are really user specific
 
 
-#### Accessing Mapping Values (Fn::FindInMap)
+### Accessing Mapping Values (Fn::FindInMap)
 -> We use Fn::FindInMap to return a named value from a specific key
 -> !FindInMap [MapName, TopLevelKey, SecondLevelKey]
 
@@ -114,7 +114,7 @@ Resources:
       ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', HVM64]
 ```
 
-#### Concept: Pseudo Parameters
+### Concept: Pseudo Parameters
 
 - AWS offers us pseudo parameters in any CloudFormation template
 - These can be used at any time and are enabled by default
