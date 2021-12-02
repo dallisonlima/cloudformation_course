@@ -815,3 +815,28 @@ CIDRs            |
   - Create a temporary policy that overrides the stack policy
   - The override policy doesn't permanently change the stack policy
 - Once created, can't be deleted (edit to allow all update actions on all resources)
+
+#### Termination Protection on Stacks
+- To prevent accidental deletes of CloudFormation stacks, use TerminationProtection
+- Applied to any nested stacks
+- Tighten your IAM policies (Ex.: explicit deny on some user groups)
+```json
+{
+  "Version":"2012-10-17",
+  "Statement":[{
+      "Effect":"Deny",
+      "Action":[
+          "cloudformation:UpdateTerminationProtection"
+      ],
+      "Resource": "*"
+  }]
+}
+```
+### CloudFormation Service Role / Template Role
+#### Service Role
+- IAM role that allows CloudFormation to create/update/delete stack resources on your behalf
+- By default, CloudFormation uses a temporary session that it generates from your user credentials
+- Use cases:
+  - You want to achieve the least privilege principle
+  - But you don't want to give the user all the required permissions to create the stack resources 
+- Give ability to users to create/update/delete the stack resources even if they don't have permissions to work with the resources in the stack
