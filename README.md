@@ -766,3 +766,30 @@ CIDRs            |
     Parameters:
       Key: value
 ```
+
+## CloudFormatino Deployment Options
+### ChangeSets
+- When you update a stack, you need to know what changes will happen before it applying them for greater confidence
+- ChangeSets won't say if the update will be successful
+- For Nested Stacks, you see the changes across all stacks
+
+### Stack Creation Failures
+- If a CLoudFormation stack creation fails, you will get the status ROLLBACK_COMPLETE
+- This means:
+  - 1. CloudFormation tried to create some resources
+  - 2. One resource creation failed
+  - 3. CloudFormation rolled back the resources(ROLLBACK, NO_NOTHING)
+  - 4. The stack is in failed created ROLLBACK_COMPLETE state
+- To resolve the error, there's only one way:
+  **Delete the failed stack and create a new stack**
+
+- You can't update, validate or change-set on a create failed stack
+
+### Rollback Triggers
+- Enables CloudFormation to rollback stack create/update operation if that operation triggers CloudWatch Alarm
+- CloudFormation monitors the specific CloudWatch alarms during:
+  - Stack create/update
+  - The monitoring period (after all resourceshave been deployed) 0 to 180 minutes (default: 0 minutes)
+- If any of the alarms goes to the ALARM stat, CloudFormation rolls back the entire stack operation If you set a monitoring time but don't specify any rollback triggers, CloudFormation still waits the specified period before cleaning up old resources for update operations
+- If you set a monitoring time of 0 minutes, CloudFormation still monitor the rollback triggers during stack create/update operation
+- Up to 5 CloudWatch alarms
