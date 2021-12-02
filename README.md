@@ -793,3 +793,13 @@ CIDRs            |
 - If any of the alarms goes to the ALARM stat, CloudFormation rolls back the entire stack operation If you set a monitoring time but don't specify any rollback triggers, CloudFormation still waits the specified period before cleaning up old resources for update operations
 - If you set a monitoring time of 0 minutes, CloudFormation still monitor the rollback triggers during stack create/update operation
 - Up to 5 CloudWatch alarms
+
+### Continue Rolling Back an Update
+- A stack goes into the UPDATE_ROLLBACK_FAILED state when CloudFormation can't roll back all changes during an update
+- A resource can't return to its original state, causing the rollback to fail
+- Example: roll back to an old database instance that was deleted outside CloudFormation
+- Solutions:
+  - Fix the errors manually outside of CloudFormation and then continue update rollback the stack
+  - Skip the resources that can't rollback successfully (CloudFormation will mark the failed resources as UPDATE_COMPLETE)
+- You can't update a stack in this state
+- For nested stacks, rolling back the parent stack will attempt to roll back all the child stacks as well
