@@ -2,7 +2,7 @@
 ## Summary
 - [Notes about course](#notes-about-course)
 - [Summary](#summary)
-- [- Fn::Transform](#--fntransform)
+- [- Resource Imports](#--resource-imports)
   - [Links](#links)
 - [Frequently Questions](#frequently-questions)
   - [About resources](#about-resources)
@@ -77,6 +77,12 @@
   - [Fn::Select](#fnselect)
   - [Fn:Split](#fnsplit)
   - [Fn::Transform](#fntransform)
+- [Advanced: Custom Resources, Registry & Modules](#advanced-custom-resources-registry--modules)
+  - [Custom Resources Overview](#custom-resources-overview)
+    - [How to define a Custom Resource ?](#how-to-define-a-custom-resource-)
+  - [Custom Resource Example](#custom-resource-example)
+- [Generating CloudFormation Templates: Imports, SAM, CDK & Macros](#generating-cloudformation-templates-imports-sam-cdk--macros)
+  - [Resource Imports](#resource-imports)
 ----------------------
 ### Links
 * [Resources and types of resources](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
@@ -778,7 +784,7 @@ Triggering AWS::CloudFormation::Init inside EC2 User Data is done by using **cfn
 ## Intrinsic Functions
 ### Fn::Ref 
 - The ```Fn::Ref``` function can be leveraged to reference
-  - Prameters => returbs the value of the parameter;
+  - Prameters => returns the value of the parameter;
   - Resources => returns the physical ID of the underlying resource (ex.: EC2 ID)
 - The shorthand for this in YAML is ```!Ref```
 
@@ -934,3 +940,78 @@ CIDRs            |
     Parameters:
       Key: value
 ```
+## Advanced: Custom Resources, Registry & Modules
+### Custom Resources Overview
+- Enable you to write custom provision logic in templates that AWS CloudFormation runs anytime you create, update, delete stacks
+- Defined in the template using AWS::CloudFormation::CustomResource or Custom::_MyCustomResourceTypeName_ (recommended)
+- Two types
+  - Amazon SNS-backed Custom Resources
+  - AWS Lambda-backed Custom Resources
+- Use cases:
+  - An AWS resource is not covered yet (new service for example)
+  - An on-premises resource
+  - Running a Lambda function to empty an S3 bucket before being deleted
+  - Fetch an AMI id
+#### How to define a Custom Resource ?
+- Service Token specifies where CloudFormation sends request to, such as Lambda ARN or SNS ARN (required & must be in the same region)
+- Input data parameters (optional)
+
+```yaml
+  Resources:
+    LogicalResourceName:
+      Type: Custom::MyCustomResourceTypeName
+      Properties:
+        ServiceToken: service_token
+```
+```yaml
+  Resources:
+    MyFrontEndTest:
+      Type: Custom::PingTester
+      Properties:
+        ServiceToken: 'arn:aws:sns:us-east-1:12334253455436:CRTest'
+        key1: string
+        key1:
+          - lista
+        key3: map
+  Outputs:
+    CustomResourceAttribute1:
+      Value: !GetAtt
+        - MyFrontEndTest
+        - responseKey1
+    CustomResourceAttribute2:
+      Value: !GetAtt
+        - MyFrontEndTest
+        - responseKey2
+```
+### Custom Resource Example
+- You can't delete a non-empty S3 Bucket
+- To delete a non-empty S3 bucket, you nust first delete all the objects inside it
+
+- We'll create a custom resource with AWS Lambda that will be used to empty an S3 bucket before deleting it
+
+> **See section 16 and review the template lambda-backed.yaml, that perform this action**
+
+## Generating CloudFormation Templates: Imports, SAM, CDK & Macros
+### Resource Imports
+- Import Existing resources into existing/new stacks
+- You don't need to delete and re-create the resources as part of a CloudFormation stack
+- During import operation, you'll need 
+  - A template that describes the entire stack (original stack resources & target resrouces to import)
+  - A Unique identifier for each target resource (ex.: BucketName for S3 buckets)
+- Each resource to import must have a DeletionPolicy attribute (any value) & Identifier
+- CloudFormation performs the following validations
+  - The resource to import exists
+  - Properties and configuration values adhere to the resource schema
+  - The resource's required properties are specified
+  - The resource to import doesn't belong to another stack
+- CloudFormation doesn't check that the template configuration matches the actual configuration
+- Recommended to run Drift 
+- Recommended to run Drift Detection on imported resources after import operation
+- Use cases:
+  - Create a new stack from existing resources
+  - Import existing resources into existing stack
+  - Move resource between stack
+  - Remove resource from a stack
+  - Remediate a detected drift
+  - Moving nested stack from parent stack and import it into another parent stack
+  - Nesting an existing stack
