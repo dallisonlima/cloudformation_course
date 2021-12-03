@@ -2,6 +2,7 @@
 ## Summary
 - [Notes about course](#notes-about-course)
 - [Summary](#summary)
+- [- Template Validation](#--template-validation)
   - [Links](#links)
 - [Frequently Questions](#frequently-questions)
   - [About resources](#about-resources)
@@ -91,6 +92,18 @@
     - [How to define a Macro?](#how-to-define-a-macro)
     - [How to use a Macro?](#how-to-use-a-macro)
     - [Good to know about Macros](#good-to-know-about-macros)
+- [OpenSource and 3rd party projects for CloudFormation](#opensource-and-3rd-party-projects-for-cloudformation)
+  - [CloudFormation Public Coverage Roadmap](#cloudformation-public-coverage-roadmap)
+  - [Advanced Concepts & 3rd Party Tools](#advanced-concepts--3rd-party-tools)
+    - [Former2](#former2)
+    - [TaskCat](#taskcat)
+    - [cfn-nag](#cfn-nag)
+    - [CloudFormation cheatsheet](#cloudformation-cheatsheet)
+    - [aws-cfn-template-flip](#aws-cfn-template-flip)
+    - [cfn-diagram](#cfn-diagram)
+    - [cfn-format](#cfn-format)
+    - [awesome-cloudformation](#awesome-cloudformation)
+  - [Template Validation](#template-validation)
 ----------------------
 ### Links
 * [Resources and types of resources](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
@@ -1097,7 +1110,7 @@ CIDRs            |
 #### How to use a Macro?
 ```yaml
   Transform: MyMacro
-  ## if you have momre than on Macro
+  ## if you have more than on Macro
   ## Transform: [MyMacro, AWS::Serverless-2016-10-31]
 
   # Using Fn::Transform
@@ -1119,3 +1132,84 @@ CIDRs            |
 https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/transform-reference.html
 - Macros examples
 https://github.com/awslabs/aws-cloudformation-templates/tree/master/aws/services/CloudFormation/MacrosExamples
+
+## OpenSource and 3rd party projects for CloudFormation
+### CloudFormation Public Coverage Roadmap
+- Focuses on upcoming coverage additions to existing AWS services to be addredded by upcoming CloudFOrmation rele
+https://github.com/aws-cloudformation/cloudformation-coverage-roadmap
+- Help costumers plan and make decisions based on what is being developed
+- Roadmap categories:
+  - Shipped
+  - Coming Soon
+  - We're working on it
+  - Researching
+
+### Advanced Concepts & 3rd Party Tools
+#### Former2
+Former2 allows you to generate IaC (ex. CloudFormation templates) from existing resources https://github.com/iann0036/former2
+
+- Everything happens in the browser (it’s a client-side web app)
+- Requires IAM keys with ReadOnlyAccess
+- The following outputs are currently supported:
+- CloudFormation templates
+- Terraform
+- Troposphere
+- CDK (Cfn Primitives) – TypeScript, Python, C#, Java
+- CDK for Terraform – TypeScript
+- Pulumi – TypeScript
+- Diagram – an embedded version of draw.io
+
+
+#### TaskCat
+A tool that automates the testing of CloudFormation templates https://github.com/aws-quickstart/taskcat
+
+- Deploys your template in multiple AWS Regions simultaneously
+- Generates a report with a pass/fail result for each Region
+- You provide
+ - AWS Regions and the number of AZs you want to include in the test
+ - Template parameters’ values
+
+#### cfn-nag
+A tool that looks for patterns in CloudFormation templates that may indicate insecure infrastructure https://github.com/stelligent/cfn_nag
+
+Examples:
+  - IAM rule and Security Group rules that are too permissive (wildcards)
+  - Access logs and Encryption that aren’t enabled
+  - Password literals
+
+#### CloudFormation cheatsheet
+Summarizes the usage of **!Ref** and **!GetAtt** with CloudFormation resources https://theburningmonk.com/cloudformation-ref-and-getatt-cheatsheet/
+
+#### aws-cfn-template-flip
+A tool that converts CloudFormation templates between JSON and YAML formats https://github.com/awslabs/aws-cfn-template-flip
+
+#### cfn-diagram
+A tool to visualize CloudFormation/SAM/CDK templates as diagrams https://github.com/mhlabs/cfn-diagram
+
+- Generates https://draw.io and HTML diagrams
+- Select only the resources you want (filter by resource type/name)
+- Different layouts
+- Supports JSON and YAML
+
+#### cfn-format
+A tool that reads a CloudFormation template and outputs a cleanly-formatted copy adhering to CloudFormation standards https://github.com/awslabs/aws-cloudformation-template-formatter
+
+#### awesome-cloudformation
+Reference list for open-source projects related to CloudFormation: https://github.com/aws-cloudformation/awesome-cloudformation
+
+### Template Validation
+You can validate your CloudFormation template to catch syntax and semantic errors, before CloudFormation creates any resources
+
+- **CloudFormation Console** automatically validates the template after you specify input parameters
+- **AWS CLI** CloudFormation validate-template command
+
+**cfn-lint**: https://github.com/aws-cloudformation/cfn-lint
+
+- Validate CloudFormation templates JSON/YAML against resource specification (properties and their values)
+
+**cfn-guard:** https://github.com/aws-cloudformation/cloudformation-guard
+
+- Validate CloudFormation templates for compliance to organization policy guidelines
+- You define your own rules
+- Example: ensure users always create encrypted S3 buckets
+- Can be used as part of CI/CD pipeline
