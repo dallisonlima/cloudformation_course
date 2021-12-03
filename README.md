@@ -2,7 +2,7 @@
 ## Summary
 - [Notes about course](#notes-about-course)
 - [Summary](#summary)
-- [- Template Validation](#--template-validation)
+- [- Template Snippets & Samples](#--template-snippets--samples)
   - [Links](#links)
 - [Frequently Questions](#frequently-questions)
   - [About resources](#about-resources)
@@ -81,6 +81,7 @@
   - [Custom Resources Overview](#custom-resources-overview)
     - [How to define a Custom Resource ?](#how-to-define-a-custom-resource-)
   - [Custom Resource Example](#custom-resource-example)
+  - [Custom Resources Closing Comments](#custom-resources-closing-comments)
 - [Generating CloudFormation Templates: Imports, SAM, CDK & Macros](#generating-cloudformation-templates-imports-sam-cdk--macros)
   - [Resource Imports](#resource-imports)
   - [AWS SAM](#aws-sam)
@@ -104,6 +105,7 @@
     - [cfn-format](#cfn-format)
     - [awesome-cloudformation](#awesome-cloudformation)
   - [Template Validation](#template-validation)
+- [Template Snippets & Samples](#template-snippets--samples)
 ----------------------
 ### Links
 * [Resources and types of resources](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
@@ -1007,10 +1009,16 @@ CIDRs            |
 ### Custom Resource Example
 - You can't delete a non-empty S3 Bucket
 - To delete a non-empty S3 bucket, you nust first delete all the objects inside it
-
 - We'll create a custom resource with AWS Lambda that will be used to empty an S3 bucket before deleting it
 
 > **See section 16 and review the template lambda-backed.yaml, that perform this action**
+
+### Custom Resources Closing Comments
+**cfn-response** module help in sending responses to CloudFormation instead of writing your own code (Python / NodeJS) https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-lambda-function-code-cfnresponsemodule.html
+
+**Custom resource helper** framework for Python simplifies writing custom resources by implementing best practices and abstractions https://github.com/aws-cloudformation/custom-resource-helper
+
+You can create your own resources using **Resource Types**, which we’ll see later in the course! https://aws.amazon.com/blogs/mt/managing-resources-using-aws-cloudformation-resource-types/
 
 ## Generating CloudFormation Templates: Imports, SAM, CDK & Macros
 ### Resource Imports
@@ -1159,7 +1167,6 @@ Former2 allows you to generate IaC (ex. CloudFormation templates) from existing 
 - Pulumi – TypeScript
 - Diagram – an embedded version of draw.io
 
-
 #### TaskCat
 A tool that automates the testing of CloudFormation templates https://github.com/aws-quickstart/taskcat
 
@@ -1213,3 +1220,10 @@ You can validate your CloudFormation template to catch syntax and semantic error
 - You define your own rules
 - Example: ensure users always create encrypted S3 buckets
 - Can be used as part of CI/CD pipeline
+
+## Template Snippets & Samples
+A list of template snippets, samples and examples you can use
+
+- https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/CHAP_TemplateQuickRef.html
+
+- https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-sample-templates.html
