@@ -2,7 +2,6 @@
 ## Summary
 - [Notes about course](#notes-about-course)
 - [Summary](#summary)
-- [- Resource Imports](#--resource-imports)
   - [Links](#links)
 - [Frequently Questions](#frequently-questions)
   - [About resources](#about-resources)
@@ -83,6 +82,15 @@
   - [Custom Resource Example](#custom-resource-example)
 - [Generating CloudFormation Templates: Imports, SAM, CDK & Macros](#generating-cloudformation-templates-imports-sam-cdk--macros)
   - [Resource Imports](#resource-imports)
+  - [AWS SAM](#aws-sam)
+    - [AWS SAM - Recipe](#aws-sam---recipe)
+  - [CDK Overview](#cdk-overview)
+    - [AWS Cloud Development Kit (CDK)](#aws-cloud-development-kit-cdk)
+    - [CDK vs SAM](#cdk-vs-sam)
+  - [CloudFormation Macros](#cloudformation-macros)
+    - [How to define a Macro?](#how-to-define-a-macro)
+    - [How to use a Macro?](#how-to-use-a-macro)
+    - [Good to know about Macros](#good-to-know-about-macros)
 ----------------------
 ### Links
 * [Resources and types of resources](https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
@@ -1015,3 +1023,99 @@ CIDRs            |
   - Remediate a detected drift
   - Moving nested stack from parent stack and import it into another parent stack
   - Nesting an existing stack
+
+### AWS SAM
+- SAM = Serverless Application Model
+- Framework for developing and deploying sercerless applications
+- All the configurations is YAML code
+- Generate complex CloudFormation from simple SAM YAML file
+- Supports anything from CloudFormation: Outputs, Mappings, Parameters, Resources...
+- Only two commands to deploy to AWS
+- SAM can use CodeDeploy to deploy Lambda functions
+- SAM can help you to run Lambda, API Gateway, DynamoDB locally
+
+#### AWS SAM - Recipe
+- Transform Header indicates it's SAM template:
+  - Transform: 'AWS::Serverless-2016-10-21'
+- Write Code
+  - AWS::Serverless::Function
+  - AWS::Serverless::Api
+  - AWS::Serverless::SimpleTable
+- Package & Deploy
+  - aws cloudformation package / sam package
+  - aws cloudformation deploy / sam deploy
+
+### CDK Overview
+#### AWS Cloud Development Kit (CDK)
+- Define your cloud infrastructure using a familiar language:
+  -  JavaScript/TypeScript, Python, Java and .NET
+- Contains high level components called constructs
+- The code is "compiled" into a CloudFormation template (JSON/YAML)
+- You can therefore deploy infrastructure and application runtime code together
+  -  Great for Lambda functions
+  -  Great for Docker containers in ECS / EKS
+- Can import/migrate a CloudFormation template into/to AWS CDK 
+#### CDK vs SAM
+- SAM:
+  - Serverless focused
+  - Write your template declaratively in JSON or YAML
+  - Great for quickly getting started with Lambda Laverages CloudFormation
+- CDK:
+  - All AWS services
+  - Write infra in a programming language JavaScript/TypeScript, Python, Java and .NET
+  - Leverages CloudFormation
+  
+ ### CloudFormation Macros
+ - Perform custom processing on CloudFormation templates (Ex.: find-and-replace, transformations,...)
+ - For example, **AWS::Serverless** wich takes an entire template written in SAM syntax and transforms it into a compliant CloudFormation template
+ - To define a Macro, you need:
+   - Lambda function: perform the template processing (snippet or entire template)
+   - A resource of type **AWS::CloudFormation::Macro** (Create a stack containing this resource)
+ - You can process
+   - The entire template (reference the Macro in the Transform section in the template)
+   - A snippet of a template (reference the Macro in **Fn::Transform**)
+ - CloudFormation generates a ChangeSet that includes the processed template
+#### How to define a Macro?
+```yaml
+  Resources:
+    MacroDefinition:
+      Type: AWS::CloudFormation::Macro
+      Properties:
+        Name: MyMacro
+        Description: MyMacro Description
+        FunctionName: lambda_function_ARN
+```
+
+```yaml
+  Resources:
+    MyMacro:
+      Type: AWS::CloudFormation::Macro
+      Properties:
+        Name: MyMacro
+        FunctionName: arn:aws:lambda:us-east-1:12344465767:function:MyFunction
+```
+#### How to use a Macro?
+```yaml
+  Transform: MyMacro
+  ## if you have momre than on Macro
+  ## Transform: [MyMacro, AWS::Serverless-2016-10-31]
+
+  # Using Fn::Transform
+  Resources:
+    MyBucket:
+    Type: AWS::S3::Bucket
+    Fn::Transform:
+      Name: MyMacro
+      Parameters:
+        Key: Value
+```
+#### Good to know about Macros
+- You can't use a Macro in the same template you're registering it in
+- You can't include Macros within Macros
+- Macros are not supported in StackSets
+- Macros are evaluated in order, processed from deeepest to shallowest (top-level Macros are executed last)
+- Billing is per AWS Lambda invocation
+- Transform hosted by AWS
+https://docs.aws.amazon.com/pt_br/AWSCloudFormation/latest/UserGuide/transform-reference.html
+- Macros examples
+https://github.com/awslabs/aws-cloudformation-templates/tree/master/aws/services/CloudFormation/MacrosExamples
